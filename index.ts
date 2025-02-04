@@ -181,6 +181,16 @@ startServer(world => {
     });
     playerEntity.spawn(world, { x: 0, y: 10, z: 0 });
 
+    // Set a tick callback with player input to adjust the fartsound playback rate.
+    playerEntity.controller!.onTickWithPlayerInput = (dt, input, velocity, isGrounded) => {
+      console.log("Input object:", input); 
+      if (fartSound && input.sh) {
+        fartSound.setPlaybackRate(3.5); // Increase rate when Shift is pressed
+      } else if (fartSound) {
+        fartSound.setPlaybackRate(1.0); // Normal rate otherwise
+      }
+    };
+
     // Send a welcome message.
     world.chatManager.sendPlayerMessage(player, 'Welcome to the game!', '00FF00');
     world.chatManager.sendPlayerMessage(player, 'Use WASD to move around.');
