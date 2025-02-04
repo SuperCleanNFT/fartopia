@@ -129,9 +129,46 @@ async function handleFartSpeak(
   );
 }
 
+let fartSound: Audio | null = null;
+
+function attachLoopingFartSound(world: World, player: Player) {
+  const playerEntities = world.entityManager.getPlayerEntitiesByPlayer(player);
+  if (playerEntities.length === 0) {
+    console.warn("No player entity found to attach the looping sound.");
+    return;
+  }
+
+  const attachedEntity = playerEntities[0];
+
+  // If a sound is already playing, pause it (this ensures only one instance)
+  if (fartSound) {
+    fartSound.pause();
+  }
+
+  fartSound = new Audio({
+    uri: 'audio/sfx/farts/fartJ.mp3',
+    loop: true,
+    attachedToEntity: attachedEntity,
+    volume: 1.0, // Adjust volume as needed.
+    referenceDistance: 5, // Adjust how the sound attenuates with distance.
+  });
+  
+  fartSound.play(world);
+}
+
 startServer(world => {
   // Load the map.
   world.loadMap(worldMap);
+
+  // Register the /fartstep command to toggle the looping fart sound
+  world.chatManager.registerCommand('/fartstep', (player) => {
+    if (fartSound) {
+      fartSound.pause(); // Pause the sound to stop playback
+      fartSound = null;
+    } else {
+      attachLoopingFartSound(world, player); // Attach and play the looping sound
+    }
+  });
 
   // Handle players joining.
   world.onPlayerJoin = player => {
@@ -166,11 +203,6 @@ startServer(world => {
     });
   });
 
-  /**
-   * Command #1: /fartspeak
-   * This is the renamed original /fart command.
-   * Same volume as before (factor=1).
-   */
   world.chatManager.registerCommand('/fartspeak', (player, args) => {
     handleFartSpeak(world, player, args, '/fartspeak', 1.0);
   });
