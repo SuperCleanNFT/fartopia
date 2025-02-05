@@ -219,9 +219,11 @@ startServer(world => {
     };
 
     // Send a welcome message.
-    world.chatManager.sendPlayerMessage(player, 'Welcome to Fartopia!', '00FF00');
-    world.chatManager.sendPlayerMessage(player, 'Type /fartspeak and then some text to hear it in fartese.');
-    world.chatManager.sendPlayerMessage(player, 'Toggle /fartstep for another fun suprise!');
+    world.chatManager.sendPlayerMessage(player, 'Welcome to the game!', '00FF00');
+    world.chatManager.sendPlayerMessage(player, 'Use WASD to move around.');
+    world.chatManager.sendPlayerMessage(player, 'Press space to jump.');
+    world.chatManager.sendPlayerMessage(player, 'Hold shift to sprint.');
+    world.chatManager.sendPlayerMessage(player, 'Press \\ to enter or exit debug view.');
   };
 
   // Handle players leaving.
@@ -242,51 +244,3 @@ startServer(world => {
     handleFartSpeak(world, player, args, '/fartspeak', 1.0);
   });
 });
-
-// Ensure the UI code only runs in a browser.
-if (typeof document !== 'undefined') {
-  document.addEventListener("DOMContentLoaded", () => {
-    // If the container doesn't exist, create and append it.
-    let container = document.getElementById("start-screen-ui");
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "start-screen-ui";
-      document.body.appendChild(container);
-    }
-
-    // HTML for the start screen overlay.
-    const startScreenHTML = `
-      <div id="startScreenUI" style="
-          position: fixed;
-          top: 10%;
-          left: 10%;
-          width: 80%;
-          height: 80%;
-          background: url('assets/ui/images/Fartwide.png') center/cover, rgba(0, 0, 0, 0.5);
-          border: 5px solid #ffffff;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          z-index: 9999;">
-        <h1 style="color: #ffffff; font-size: 48px; margin-bottom: 20px;">Welcome to Fartopia!</h1>
-        <p style="color: #ffffff; font-size: 24px; white-space: pre-line; text-align: center;">
-Rule 1
-Rule 2
-Rule 3
-        </p>
-      </div>
-    `;
-
-    // Insert the overlay into the container.
-    container.innerHTML = startScreenHTML;
-
-    // Optionally, remove the overlay when it's clicked.
-    const overlay = document.getElementById("startScreenUI");
-    if (overlay) {
-      overlay.addEventListener("click", () => {
-        overlay.remove();
-      });
-    }
-  });
-}
