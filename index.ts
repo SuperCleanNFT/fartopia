@@ -181,14 +181,41 @@ startServer(world => {
     });
     playerEntity.spawn(world, { x: 0, y: 10, z: 0 });
 
-    // Set a tick callback with player input to adjust the fartsound playback rate.
+    // Inside world.onPlayerJoin callback, after spawning the player
+    let lastSpace = false;
+    let spaceInterruptActive = false;
+
     playerEntity.controller!.onTickWithPlayerInput = (dt, input, velocity, isGrounded) => {
-      console.log("Input object:", input); 
+      // Adjust looping fart sound playback rate based on the Shift key ("sh").
       if (fartSound && input.sh) {
-        fartSound.setPlaybackRate(3.5); // Increase rate when Shift is pressed
+        fartSound.setPlaybackRate(2.5); // Increased rate when Shift is pressed
       } else if (fartSound) {
         fartSound.setPlaybackRate(1.0); // Normal rate otherwise
       }
+
+      // Only trigger space bar interrupt if the looping sound is active
+      if (fartSound && input.sp && !lastSpace && !spaceInterruptActive) {
+        spaceInterruptActive = true;
+        
+        // Interrupt the looping sound.
+        fartSound.pause();
+        fartSound = null;
+        
+        // Play the one-off space fart sound.
+        new Audio({
+          uri: 'audio/sfx/farts/fartE.mp3',
+          volume: 1.0
+        }).play(world);
+        
+        // Resume the looping sound after 1 second.
+        setTimeout(() => {
+          attachLoopingFartSound(world, player);
+          spaceInterruptActive = false;
+        }, 1000);
+      }
+      
+      // Update the lastSpace flag.
+      lastSpace = input.sp ?? false;
     };
 
     // Send a welcome message.
